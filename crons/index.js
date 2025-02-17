@@ -1,5 +1,8 @@
 const cron = require("node-cron");
+const moment = require("moment-timezone");
+const eventsArrival = require("./eventsArrival");
 const projectsAndTasksDueDates = require("./projectsAndTasksDueDates");
+const subscriptionExpirations = require("./subscriptionsExpiration");
 
 // * * * * *
 // | | | | |
@@ -9,19 +12,21 @@ const projectsAndTasksDueDates = require("./projectsAndTasksDueDates");
 // | └──────── Hour (0 - 23)
 // └────────── Minute (0 - 59)
 
+const everySecond = "* * * * * *";
 const everyMinute = "* * * * *";
 const daily8AM = "0 8 * * *";
 const dailyMidnight = "0 0 * * *";
-const daily2_17 = "26 2 * * *";
 
 module.exports = () => {
-	// cron.schedule(everyMinute, async () => {
-	// 	console.log("checking notifications!", new Date().toLocaleTimeString());
-	// });
+  // Daily 8 AM cron jobs
+  cron.schedule(daily8AM, async () => {
+    // Projects and task due dates notifying
+    await projectsAndTasksDueDates();
+  });
 
-	// Daily 8 AM cron jobs
-	cron.schedule(daily2_17, async () => {
-		// Projects and task due dates
-		projectsAndTasksDueDates();
-	});
+  // Daily midnight cron jobs
+  cron.schedule(dailyMidnight, async () => {
+    // Subscriptions expiration notifying
+    await subscriptionExpirations();
+  });
 };
