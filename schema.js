@@ -165,6 +165,7 @@ const typeDefs = gql`
     message: String
     click_action: String
     created_at: String
+    sender_id: ID
   }
 
   type NotificationSub {

@@ -1,9 +1,9 @@
 const db = require(".");
 
 const createTables = async (req, res) => {
-	try {
-		const { rows } = await db.query(
-			`
+  try {
+    const { rows } = await db.query(
+      `
             -- Table for User
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -132,6 +132,7 @@ const createTables = async (req, res) => {
             CREATE TABLE IF NOT EXISTS notifications (
                 id SERIAL PRIMARY KEY,
                 user_id INT NOT NULL REFERENCES users(id),
+                sender_id INT REFERENCES users(id),
                 viewed BOOLEAN DEFAULT FALSE,
                 type VARCHAR(50) NOT NULL,
                 title VARCHAR(255) NOT NULL,
@@ -140,14 +141,16 @@ const createTables = async (req, res) => {
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
             `
-		);
+    );
 
-		return res.status(200).json({ message: "Tables created successfully" });
-	} catch (error) {
-		console.log(error.message);
+    return res
+      .status(200)
+      .json({ message: "Tables created successfully", data: rows });
+  } catch (error) {
+    console.log(error.message);
 
-		return res.status(500).json({ message: error.message });
-	}
+    return res.status(500).json({ message: error.message });
+  }
 };
 
 module.exports = { createTables };
