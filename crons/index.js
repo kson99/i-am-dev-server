@@ -1,5 +1,4 @@
 const cron = require("node-cron");
-const moment = require("moment-timezone");
 const eventsArrival = require("./eventsArrival");
 const projectsAndTasksDueDates = require("./projectsAndTasksDueDates");
 const subscriptionExpirations = require("./subscriptionsExpiration");
@@ -18,6 +17,16 @@ const daily8AM = "0 8 * * *";
 const dailyMidnight = "0 0 * * *";
 
 module.exports = () => {
+  // Secondly cron jobs
+  // cron.schedule(everySecond, async () => {
+  //   // console.log("time");
+  // });
+
+  // Minutely cron jobs
+  cron.schedule(everyMinute, async () => {
+    await eventsArrival();
+  });
+
   // Daily 8 AM cron jobs
   cron.schedule(daily8AM, async () => {
     // Projects and task due dates notifying
