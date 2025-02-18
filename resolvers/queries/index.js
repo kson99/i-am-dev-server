@@ -243,7 +243,28 @@ const projectTasks = async (_, { project_id }, { user }) => {
   }
 };
 
-// getting all clients
+// Getting all clients
+const allClients = async (_, __, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
+
+  try {
+    const { rows } = await db.query(`
+      SELECT * FROM clients 
+      ORDER BY ID DESC
+      `);
+
+    return rows;
+  } catch (error) {
+    console.log(error.message);
+
+    throw new Error("Failed getting clients: " + error.message);
+  }
+};
+
+// getting all clients paginated
 const clients = async (_, { limit, offset }, { user }) => {
   // authentication
   if (!user) {
@@ -643,6 +664,7 @@ module.exports = {
   tasks_count,
   subtasks,
   projectTasks,
+  allClients,
   clients,
   clients_count,
   client,

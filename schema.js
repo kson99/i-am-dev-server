@@ -206,6 +206,7 @@ const typeDefs = gql`
     subtasks(id: ID!): [Subtask]
 
     # Clients
+    allClients: [Client]
     clients(limit: Int!, offset: Int!): [Client]
     clients_count: Int
     client(id: ID!): Client
@@ -276,6 +277,7 @@ const typeDefs = gql`
     # Users
     updateUserImage(updates: UpdateUserImageInput!): User
     updateUserPreferences(updates: UpdateUserPreferencesInput!): User
+    updateUserStatus(id: ID!, status: String!): User
 
     # Notification
     updateNotificationViewed(id: ID!): Notification

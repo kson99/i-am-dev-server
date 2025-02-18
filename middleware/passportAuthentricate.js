@@ -19,21 +19,23 @@ const passportAuthenticate = async (req, res, next, strategy) => {
       // Check if notification for access request has been sent
       const { rows: notified } = await db.query(
         `
-		SELECT 1 FROM notifications 
-		WHERE sender_id = $1
-		`,
+	    	SELECT 1 FROM notifications 
+		    WHERE sender_id = $1
+		    `,
         [user.id]
       );
 
       /* If not notification has been sent
-		Then send notification */
+		    Then send notification */
       if (notified.length === 0) {
         // getting admins
         const { rows } = await db.query(
-          "SELECT id FROm users WHERE role = 'admin'"
+          "SELECT id FROM users WHERE role = 'admin'"
         );
 
-        const promisRequest = rows.map(async (id) => {
+        console.log("admin id: ", rows);
+
+        const promisRequest = rows.map(async ({ id }) => {
           // inserting notification into notification's table
           await db.query(
             `

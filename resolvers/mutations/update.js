@@ -439,6 +439,38 @@ const updateUserPreferences = async (_, { updates }, { user }) => {
   }
 };
 
+// updating user status
+const updateUserStatus = async (_, { id, status }, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
+
+  // authorizations
+  if (user.role !== "admin") {
+    throw new Error("User not auhtorized");
+  }
+
+  // Checking status validity
+  const allowedStatuses = ["Active", "Disabled"];
+  if (!allowedStatuses.includes(status)) {
+    throw new Error("Status provided invalid");
+  }
+
+  try {
+    const { rows } = await db.query(
+      "UPDATE users SET status = $1 WHERE id = $2 RETURNING *",
+      [status, id]
+    );
+
+    return rows[0];
+  } catch (error) {
+    console.log(error.message);
+
+    throw new Error("Failed updating user status: " + error.message);
+  }
+};
+
 // Updating notification viewed status
 const updateNotificationViewed = async (_, { id }, { user }) => {
   // authentication
@@ -470,5 +502,6 @@ module.exports = {
   updateSubscriptionLogo,
   updateUserImage,
   updateUserPreferences,
+  updateUserStatus,
   updateNotificationViewed,
 };
