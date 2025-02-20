@@ -309,6 +309,9 @@ const typeDefs = gql`
 
     # Notification
     updateNotificationViewed(id: ID!): Notification
+
+    # Messages
+    markMessagesAsRead(chat_id: ID!, type: String!): [Chat]
   }
 
   input CreateProjectInput {

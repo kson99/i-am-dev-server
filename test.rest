@@ -5,9 +5,9 @@ POST http://localhost:4000/messages/contactUs
 Content-Type: application/json
 
 {
-    "name": "Kson99",
-    "email": "kson@gmail.com",
-    "subject": "Test 1",
-    "message": "This is the first test for messages.",
+    "name": "Armando Fernandez",
+    "email": "armandof@gmail.com",
+    "subject": "Website Development",
+    "message": "Good day Sir, Im from A company called MediaTeck and would like to request a Project management website development Quotation.",
     "site": "www.test.com"
 }

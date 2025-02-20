@@ -1,5 +1,6 @@
 const express = require("express");
 const db = require("../db");
+const { sendNotification } = require("../utils");
 const router = express.Router();
 
 router.post("/contactUs", async (req, res) => {
@@ -8,7 +9,7 @@ router.post("/contactUs", async (req, res) => {
 
     // Check if site is available in contact us sites
     const { rows: pagesList } = await db.query(
-      "SELECT id FROM contact_us_pages WHERE site = $1",
+      "SELECT id, owner, site_name FROM contact_us_pages WHERE site = $1",
       [site]
     );
 
@@ -17,14 +18,41 @@ router.post("/contactUs", async (req, res) => {
       throw new Error("Website not in contact us page list.");
     }
 
-    const site_id = pagesList[0]?.id;
-    await db.query(
+    const { id: site_id, owner, site_name } = pagesList[0];
+    // Adding message to database
+    const { rows: messages } = await db.query(
       `
       INSERT INTO messages 
       (site_id, name, email, subject, message, type, is_read, created_at)
       VALUES ($1, $2, $3, $4, $5, 'Web', FALSE, NOW())
+      RETURNING *
       `,
       [site_id, name, email, subject, message]
+    );
+
+    // Adding notification to database
+    await db.query(
+      "INSERT INTO notifications (user_id, viewed, type, title, message, click_action, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())",
+      [
+        owner,
+        false,
+        "messages",
+        `Message from ${site_name}`,
+        message,
+        `/messages/${messages[0].id}`,
+      ]
+    );
+
+    // Sending notification
+    await sendNotification(
+      owner,
+      `Message from ${site_name}`,
+      message,
+      "messages",
+      {
+        click_action: `/messages/${messages[0].id}`,
+        messageType: "Web",
+      }
     );
 
     res.status(200).json({

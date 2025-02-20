@@ -491,6 +491,34 @@ const updateNotificationViewed = async (_, { id }, { user }) => {
   }
 };
 
+const markMessagesAsRead = async (_, { chat_id, type }, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
+
+  try {
+    if (type === "Web") {
+      const { rows } = await db.query(
+        "UPDATE messages SET is_read = TRUE WHERE site_id = $1 AND is_read = FALSE RETURNING *",
+        [chat_id]
+      );
+
+      return rows;
+    } else {
+      const { rows } = await db.query(
+        "UPDATE messages SET is_read = TRUE WHERE chat_id = $1 AND is_read = FALSE RETURNING *",
+        [chat_id]
+      );
+
+      return rows;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Failed updating messages status: " + error.message);
+  }
+};
+
 module.exports = {
   updateProject,
   updateProjectHost,
@@ -504,4 +532,5 @@ module.exports = {
   updateUserPreferences,
   updateUserStatus,
   updateNotificationViewed,
+  markMessagesAsRead,
 };

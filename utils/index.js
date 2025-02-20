@@ -14,9 +14,9 @@ const sendNotification = async (user_id, title, message, type, data) => {
 
   // Handling not subscriptions available
   if (filteredSubscriptions.length === 0) {
-    return res
-      .status(400)
-      .json({ message: "No active subscriptions for this type." });
+    console.log(
+      `No active subscriptions for this type or user disabled '${type}' notifications.`
+    );
   }
 
   const notificationPayload = JSON.stringify({
