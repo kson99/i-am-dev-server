@@ -1,0 +1,13 @@
+GET http://localhost:4000/createTables
+
+###
+POST http://localhost:4000/messages/contactUs
+Content-Type: application/json
+
+{
+    "name": "Kson99",
+    "email": "kson@gmail.com",
+    "subject": "Test 1",
+    "message": "This is the first test for messages.",
+    "site": "www.test.com"
+}

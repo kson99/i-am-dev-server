@@ -182,6 +182,30 @@ const typeDefs = gql`
     updated_at: String
   }
 
+  type Message {
+    id: ID!
+    chat_id: ID
+    sender_id: ID
+    site_id: ID
+    name: String
+    email: String
+    subject: String
+    message: String
+    type: String
+    is_read: Boolean
+    created_at: String
+  }
+
+  type Chat {
+    id: ID!
+    name: String
+    last_message: JSON
+    unread_count: Int
+    reference: String
+    messages: [Message]
+    avatar: String
+  }
+
   scalar JSON
 
   # Queries
@@ -238,6 +262,10 @@ const typeDefs = gql`
     # Notifications
     notifications(type: String!, limit: Int!, offset: Int!): [Notification]
     notifications_count(type: String!): Int
+
+    # Messages
+    chats(type: String!): [Chat]
+    chat(id: ID!, type: String!): Chat
   }
 
   # Mutations

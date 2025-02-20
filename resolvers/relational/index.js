@@ -418,6 +418,69 @@ const NotificationSub = {
   },
 };
 
+// Relational functions for Chat
+const Chat = {
+  async last_message({ id, type }) {
+    if (type === "Web") {
+      const { rows } = await db.query(
+        "SELECT message, created_at FROM messages WHERE site_id = $1 ORDER BY id, created_at DESC LIMIT 1",
+        [id]
+      );
+
+      return {
+        message: rows[0]?.message,
+        timestamp: rows[0]?.created_at,
+      };
+    } else {
+      const { rows } = await db.query(
+        "SELECT message, created_at FROM messages WHERE chat_id = $1 ORDER BY id, created_at DESC LIMIT 1",
+        [id]
+      );
+
+      return {
+        message: rows[0]?.message,
+        timestamp: rows[0]?.created_at,
+      };
+    }
+  },
+
+  async unread_count({ id, type }) {
+    if (type === "Web") {
+      const { rows } = await db.query(
+        "SELECT count(*) FROM messages WHERE is_read = FALSE AND site_id = $1",
+        [id]
+      );
+
+      return rows[0]?.count || 0;
+    } else {
+      const { rows } = await db.query(
+        "SELECT count(*) FROM messages WHERE is_read = FALSE AND chat_id = $1",
+        [id]
+      );
+
+      return rows[0]?.count || 0;
+    }
+  },
+
+  async messages({ id, type }) {
+    if (type === "Web") {
+      const { rows } = await db.query(
+        `SELECT * FROM messages WHERE site_id = $1 AND type = $2 ORDER BY created_at DESC`,
+        [id, type]
+      );
+
+      return rows;
+    } else {
+      const { rows } = await db.query(
+        "SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC ",
+        [id]
+      );
+
+      return rows;
+    }
+  },
+};
+
 module.exports = {
   Stats,
   Project,
@@ -427,4 +490,5 @@ module.exports = {
   ProjectComment,
   SearchResults,
   NotificationSub,
+  Chat,
 };

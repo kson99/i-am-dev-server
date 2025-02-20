@@ -139,8 +139,47 @@ const createTables = async (req, res) => {
                 message TEXT NOT NULL,
                 click_action TEXT,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            )
-            `
+            );
+
+            -- Table for Chats
+            CREATE TABLE IF NOT EXISTS chats (
+                id BIGSERIAL PRIMARY KEY,
+                is_group BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+
+            -- Table for Chat Members
+            CREATE TABLE IF NOT EXISTS chat_members (
+                id BIGSERIAL PRIMARY KEY,
+                chat_id INT REFERENCES chats(id) ON DELETE CASCADE,
+                user_id INT REFERENCES users(id) ON DELETE CASCADE,
+                UNIQUE(chat_id, user_id)
+            );
+
+            -- Table for Contact Us Pages
+            CREATE TABLE IF NOT EXISTS contact_us_pages (
+                id SERIAL PRIMARY KEY NOT NULL,
+                site VARCHAR(255) NOT NULL UNIQUE,
+                site_name VARCHAR(255) NOT NULL,
+                favicon JSONB
+            );
+
+            -- Table for Messages
+            CREATE TABLE IF NOT EXISTS messages (
+                id BIGSERIAL PRIMARY KEY,
+                chat_id INT REFERENCES chats(id) ON DELETE CASCADE,
+                sender_id INT REFERENCES users(id) ON DELETE CASCADE,
+                site_id INT REFERENCES contact_us_pages(id),
+                name VARCHAR(255),
+                email VARCHAR(255),
+                subject VARCHAR(255),
+                message TEXT NOT NULL,
+                type VARCHAR(50),
+                is_read BOOLEAN DEFAULT FALSE, 
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+
+        `
     );
 
     return res

@@ -76,6 +76,7 @@ const projects = async (_, { limit, offset }, { user }) => {
   }
 };
 
+// Getting projects count
 const projects_count = async (_, __, { user }) => {
   // authentication
   if (!user) {
@@ -618,6 +619,7 @@ const notifications = async (_, { type, limit, offset }, { user }) => {
   }
 };
 
+// Getting notifications count
 const notifications_count = async (_, { type }, { user }) => {
   // authentication
   if (!user) {
@@ -652,6 +654,132 @@ const notifications_count = async (_, { type }, { user }) => {
   }
 };
 
+// Get chat by id
+const chat = async (_, { type, id }, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
+
+  // Allowed types check
+  const allowedTypes = ["Chats", "Web"];
+  if (!allowedTypes.includes(type)) {
+    throw new Error("Invalid type provided");
+  }
+
+  // authorization
+  if (type === "Web" && user?.role !== "admin") {
+    throw new Error("User not authorized");
+  }
+  try {
+    if (type === "Web") {
+      const { rows } = await db.query(
+        `
+        SELECT *,
+           site AS reference,
+           site_name AS name,
+           favicon AS avatar
+        FROM contact_us_pages
+        WHERE id = $1
+        `,
+        [id]
+      );
+
+      return { ...rows[0], type };
+    } else {
+      const { rows } = await db.query("SELECT * FROM chats WHERE id = $1", [
+        id,
+      ]);
+
+      return { ...rows[0], type };
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Failed getting chat: " + error.message);
+  }
+};
+
+// Gettings chats
+const chats = async (_, { type }, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
+
+  // Allowed types check
+  const allowedTypes = ["Chats", "Web"];
+  if (!allowedTypes.includes(type)) {
+    throw new Error("Invalid type provided");
+  }
+
+  // authorization
+  if (type === "Web" && user?.role !== "admin") {
+    throw new Error("User not authorized");
+  }
+
+  try {
+    if (type === "Web") {
+      const { rows } = await db.query(`
+        SELECT *,
+           site AS reference,
+           site_name AS name,
+           favicon AS avatar
+        FROM contact_us_pages 
+        ORDER BY id DESC
+        `);
+
+      return rows.map((row) => ({ ...row, type }));
+    } else {
+      const { rows } = await db.query("SELECT * FROM chats");
+
+      return rows.map((row) => ({ ...row, type }));
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Failed getting chats: " + error.message);
+  }
+};
+
+// Getting Chat messages
+// const messages = async (_, { type, chat_id }, { user }) => {
+//   // authentication
+//   if (!user) {
+//     throw new Error("User not logged In");
+//   }
+
+//   // Allowed types check
+//   const allowedTypes = ["Chats", "Web"];
+//   if (!allowedTypes.includes(type)) {
+//     throw new Error("Invalid type provided");
+//   }
+
+//   // authorization
+//   if (type === "Web" && user?.role !== "admin") {
+//     throw new Error("User not authorized");
+//   }
+
+//   try {
+//     if (type === "Web") {
+//       const { rows } = await db.query(
+//         `SELECT * FROM messages WHERE site_id = $1 AND type = $2 ORDER BY created_at DESC`,
+//         [chat_id, type]
+//       );
+
+//       return rows;
+//     } else {
+//       const { rows } = await db.query(
+//         "SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC ",
+//         [chat_id]
+//       );
+
+//       return rows;
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//     throw new Error("Failed getting messages: " + error.message);
+//   }
+// };
+
 module.exports = {
   stats,
   allProjects,
@@ -681,4 +809,6 @@ module.exports = {
   users_requsting_access_count,
   notifications,
   notifications_count,
+  chat,
+  chats,
 };
