@@ -491,6 +491,7 @@ const updateNotificationViewed = async (_, { id }, { user }) => {
   }
 };
 
+// Marking messages as read
 const markMessagesAsRead = async (_, { chat_id, type }, { user }) => {
   // authentication
   if (!user) {
@@ -519,6 +520,39 @@ const markMessagesAsRead = async (_, { chat_id, type }, { user }) => {
   }
 };
 
+const updateContactPage = async (_, { id, updates }, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
+
+  try {
+    const fields = [];
+    const values = [];
+
+    Object.keys(updates).map((key, index) => {
+      fields.push(`${key} = $${index + 1}`);
+      values.push(updates[key]);
+    });
+
+    values.push(id);
+
+    const { rows } = await db.query(
+      `
+          UPDATE contact_us_pages SET ${fields.join(", ")}
+          WHERE id = $${values.length}
+          RETURNING *
+        `,
+      values
+    );
+
+    return rows[0];
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Failed updating contact page: " + error.message);
+  }
+};
+
 module.exports = {
   updateProject,
   updateProjectHost,
@@ -533,4 +567,5 @@ module.exports = {
   updateUserStatus,
   updateNotificationViewed,
   markMessagesAsRead,
+  updateContactPage,
 };

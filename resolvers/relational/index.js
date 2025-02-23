@@ -423,7 +423,7 @@ const Chat = {
   async last_message({ id, type }) {
     if (type === "Web") {
       const { rows } = await db.query(
-        "SELECT message, created_at FROM messages WHERE site_id = $1 ORDER BY id, created_at DESC LIMIT 1",
+        "SELECT message, created_at FROM messages WHERE site_id = $1 ORDER BY created_at DESC LIMIT 1",
         [id]
       );
 
@@ -433,7 +433,7 @@ const Chat = {
       };
     } else {
       const { rows } = await db.query(
-        "SELECT message, created_at FROM messages WHERE chat_id = $1 ORDER BY id, created_at DESC LIMIT 1",
+        "SELECT message, created_at FROM messages WHERE chat_id = $1 ORDER BY created_at DESC LIMIT 1",
         [id]
       );
 
@@ -465,18 +465,24 @@ const Chat = {
   async messages({ id, type }) {
     if (type === "Web") {
       const { rows } = await db.query(
-        `SELECT * FROM messages WHERE site_id = $1 AND type = $2 ORDER BY created_at DESC`,
+        `SELECT * FROM messages WHERE site_id = $1 AND type = $2 ORDER BY created_at ASC`,
         [id, type]
       );
 
       return rows;
     } else {
       const { rows } = await db.query(
-        "SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC ",
+        "SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at ASC ",
         [id]
       );
 
       return rows;
+    }
+  },
+
+  async avatar({ type, favicon }) {
+    if (type === "Web") {
+      return favicon?.url;
     }
   },
 };

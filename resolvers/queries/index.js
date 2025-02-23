@@ -700,7 +700,7 @@ const chat = async (_, { type, id }, { user }) => {
 };
 
 // Gettings chats
-const chats = async (_, { type }, { user }) => {
+const chats = async (_, { search, type }, { user }) => {
   // authentication
   if (!user) {
     throw new Error("User not logged In");
@@ -719,18 +719,29 @@ const chats = async (_, { type }, { user }) => {
 
   try {
     if (type === "Web") {
-      const { rows } = await db.query(`
+      const { rows } = await db.query(
+        `
         SELECT *,
            site AS reference,
            site_name AS name,
            favicon AS avatar
-        FROM contact_us_pages 
+        FROM contact_us_pages
+        WHERE site_name ILIKE $1
         ORDER BY id DESC
-        `);
+        `,
+        [`%${search}%`]
+      );
 
       return rows.map((row) => ({ ...row, type }));
     } else {
-      const { rows } = await db.query("SELECT * FROM chats");
+      const { rows } = await db.query(
+        `
+        SELECT * FROM chats
+        WHERE name ILIKE $1
+        ORDER BY id DESC
+        `,
+        [`%${search}%`]
+      );
 
       return rows.map((row) => ({ ...row, type }));
     }
@@ -740,45 +751,29 @@ const chats = async (_, { type }, { user }) => {
   }
 };
 
-// Getting Chat messages
-// const messages = async (_, { type, chat_id }, { user }) => {
-//   // authentication
-//   if (!user) {
-//     throw new Error("User not logged In");
-//   }
+// Getting contact pages
+const contact_pages = async (_, __, { user }) => {
+  // authentication
+  if (!user) {
+    throw new Error("User not logged In");
+  }
 
-//   // Allowed types check
-//   const allowedTypes = ["Chats", "Web"];
-//   if (!allowedTypes.includes(type)) {
-//     throw new Error("Invalid type provided");
-//   }
+  try {
+    const { rows } = await db.query(
+      `
+        SELECT * FROM contact_us_pages
+        WHERE owner = $1
+        ORDER BY id DESC
+      `,
+      [user.id]
+    );
 
-//   // authorization
-//   if (type === "Web" && user?.role !== "admin") {
-//     throw new Error("User not authorized");
-//   }
-
-//   try {
-//     if (type === "Web") {
-//       const { rows } = await db.query(
-//         `SELECT * FROM messages WHERE site_id = $1 AND type = $2 ORDER BY created_at DESC`,
-//         [chat_id, type]
-//       );
-
-//       return rows;
-//     } else {
-//       const { rows } = await db.query(
-//         "SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC ",
-//         [chat_id]
-//       );
-
-//       return rows;
-//     }
-//   } catch (error) {
-//     console.log(error.message);
-//     throw new Error("Failed getting messages: " + error.message);
-//   }
-// };
+    return rows;
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Failed getting contact pages: " + error.message);
+  }
+};
 
 module.exports = {
   stats,
@@ -811,4 +806,5 @@ module.exports = {
   notifications_count,
   chat,
   chats,
+  contact_pages,
 };

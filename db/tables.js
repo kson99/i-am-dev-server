@@ -145,6 +145,7 @@ const createTables = async (req, res) => {
             CREATE TABLE IF NOT EXISTS chats (
                 id BIGSERIAL PRIMARY KEY,
                 is_group BOOLEAN DEFAULT FALSE,
+                name VARCHAR(255),
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
 

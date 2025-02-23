@@ -206,6 +206,14 @@ const typeDefs = gql`
     avatar: String
   }
 
+  type ContactPage {
+    id: ID!
+    site: String
+    site_name: String
+    favicon: JSON
+    owner: ID
+  }
+
   scalar JSON
 
   # Queries
@@ -264,8 +272,11 @@ const typeDefs = gql`
     notifications_count(type: String!): Int
 
     # Messages
-    chats(type: String!): [Chat]
+    chats(search: String, type: String!): [Chat]
     chat(id: ID!, type: String!): Chat
+
+    # Contact us pages
+    contact_pages: [ContactPage]
   }
 
   # Mutations
@@ -312,6 +323,10 @@ const typeDefs = gql`
 
     # Messages
     markMessagesAsRead(chat_id: ID!, type: String!): [Chat]
+
+    # Contact us pages
+    createContactPage(contactPage: CreateContactPageInput!): ContactPage
+    updateContactPage(updates: UpdateContactPageInput!, id: ID!): ContactPage
   }
 
   input CreateProjectInput {
@@ -479,6 +494,20 @@ const typeDefs = gql`
     events: Boolean
     subscriptions: Boolean
     access_request: Boolean
+  }
+
+  input CreateContactPageInput {
+    site: String!
+    site_name: String!
+    favicon: File
+    owner: ID!
+  }
+
+  input UpdateContactPageInput {
+    site: String
+    site_name: String
+    favicon_removed: ItemImageInput
+    new_favicon: File
   }
 
   input ItemImageInput {

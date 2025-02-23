@@ -39,7 +39,7 @@ router.post("/contactUs", async (req, res) => {
         "messages",
         `Message from ${site_name}`,
         message,
-        `/messages/${messages[0].id}`,
+        `/messages/${site_id}?tab=Web`,
       ]
     );
 
@@ -50,8 +50,7 @@ router.post("/contactUs", async (req, res) => {
       message,
       "messages",
       {
-        click_action: `/messages/${messages[0].id}`,
-        messageType: "Web",
+        click_action: `/messages/${site_id}?tab=Web`,
       }
     );
 
