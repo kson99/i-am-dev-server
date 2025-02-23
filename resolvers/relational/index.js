@@ -15,7 +15,7 @@ const Stats = {
         ids.map(async (id) => {
           // Getting all tasks for project id
           const { rows: tasks } = await db.query(
-            "SELECT id FROM tasks WHERE id = $1",
+            "SELECT id FROM tasks WHERE project_id = $1",
             [id]
           );
 
@@ -26,7 +26,7 @@ const Stats = {
             // finding subtasks not completed
             const { rows } = await db.query(
               `SELECT count(*) FROM subtasks
-            WHERE task_id IN (${tasks_ids.join(", ")})`
+            WHERE task_id IN (${tasks_ids.join(", ")}) AND completed = false`
             );
 
             // if there a subtask not complete
