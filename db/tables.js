@@ -162,7 +162,7 @@ const createTables = async (req, res) => {
                 id SERIAL PRIMARY KEY NOT NULL,
                 site VARCHAR(255) NOT NULL UNIQUE,
                 site_name VARCHAR(255) NOT NULL,
-                owner Int REFERENCES users(id) NOT NULL
+                owner Int REFERENCES users(id) NOT NULL,
                 favicon JSONB
             );
 
