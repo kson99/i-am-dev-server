@@ -17,6 +17,9 @@ require("dotenv").config();
   const app = express(); // Setting up Express App
   cronOperations(); //Running cron operations
 
+  // Serve static files (optional, if you want to serve CSS, JS, etc.)
+  app.use(express.static("public"));
+
   // Middlewares
   app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
   app.use(bodyParser.json({ limit: "50mb" }));
@@ -45,6 +48,14 @@ require("dotenv").config();
   const authRoutes = require("./routes/auth");
   const notificationRoutes = require("./routes/notifications");
   const messagesRoutes = require("./routes/messages");
+
+  // Landing page
+  // app.get("/", (req, res) => {
+  //   res.send(`
+  //       <h1> Welcome to the API </h1>
+  //       <p> This is the Home route </p>
+  //     `);
+  // });
 
   app.use("/auth", authRoutes);
   app.use("/notification", notificationRoutes);
